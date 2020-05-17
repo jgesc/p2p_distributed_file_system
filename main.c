@@ -7,10 +7,23 @@
 
 void nodeconnect(struct internal_state * self, struct peer_addr * seed)
 {
-  printf("Connecting to seed");
+  uint8_t buffer[65536];
+  struct sockaddr_in cliaddr;
+  int addrlen;
 
+  printf("Connecting to seed\n");
+
+  // Send JOIN message
   struct msg_join payload;
-  send_sc(self, MSG_JOIN, (void *)&payload, sizeof(struct msg_join), seed);
+  payload.newpeer = self->selfaddr;
+  payload.reqcon = 4;
+  send_sc(self, JOIN, (void *)&payload, sizeof(struct msg_join), seed);
+
+  // Wait for response
+  recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
+  struct packet * res = (void*)buffer;
+  struct msg_peers * rescnt = (void*)res->payload.content;
+  printf("Received %d new peers from seed\n", rescnt->count);
 }
 
 void node(struct peer_addr * seed, short port)
@@ -20,18 +33,33 @@ void node(struct peer_addr * seed, short port)
 
   // Connect
   if(seed) nodeconnect(self, seed);
-  else printf("Started node as SERVER");
+  else printf("Started node as SERVER\n");
 
   // Listen to incoming packets
   uint8_t buffer[65536];
+  struct sockaddr_in cliaddr;
+  int addrlen;
   while(1)
   {
-    recvfrom(self->sock, buffer, 65536, MSG_WAITALL, NULL, 0);
+    recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
     procmsg(self, buffer);
   }
 }
 
-int main(void)
+int main(int argc, char ** argv)
+{
+  struct peer_addr seed;
+  seed.addr.sin_family = AF_INET;
+  seed.addr.sin_port = htons(8888);
+  seed.addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+  if(argc == 1) node(NULL, 8888);
+  else node(&seed, 8889);
+
+  return 0;
+}
+
+void test_list()
 {
   struct stlist * l = stl_new(10, 256);
   int i;

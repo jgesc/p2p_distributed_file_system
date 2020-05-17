@@ -5,6 +5,9 @@ struct internal_state * init_self(short port)
   // Allocate internal state
   struct internal_state * state = malloc(sizeof(struct internal_state));
   state->neighbors = stl_new(32, sizeof(struct peer_addr));
+  state->selfaddr.addr.sin_family = AF_INET;
+  state->selfaddr.addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  state->selfaddr.addr.sin_port = htons(port);
 
   // Socket creation
   if((state->sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
@@ -20,7 +23,6 @@ struct internal_state * init_self(short port)
     perror("Can't bind socket");
     exit(EXIT_FAILURE);
   }
-
 
   // Return
   return state;
