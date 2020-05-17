@@ -14,7 +14,12 @@ struct debugmsg {
   char string[512];
 };
 
-
+#define LOG( topic,fmt,... )    \
+        { \
+            struct debugmsg msg = {0}; \
+            msg.topic = topic; \
+            snprintf(msg.string, 512, fmt, __VA_ARGS__);    \
+        }
 
 int main(void) {
 
