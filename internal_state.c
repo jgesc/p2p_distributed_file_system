@@ -27,3 +27,15 @@ struct internal_state * init_self(short port)
   // Return
   return state;
 }
+
+void meet_new_peer(struct internal_state * self, struct peer_addr * peer)
+{
+  if(self->neighbors->len >= self->neighbors->max)
+  {
+    // Forget random peer
+    uint32_t idx = rand() % self->neighbors->len;
+    stl_remove(self->neighbors, idx);
+  }
+
+  stl_add(self->neighbors, peer);
+}

@@ -21,7 +21,15 @@ int stl_add(struct stlist * l, void * d)
 
 //int stl_contains(struct stlist * l, void * ele, int (*cmpfun)(void*, void*));
 
-void stl_remove(struct stlist * l, uint32_t idx);
+void stl_remove(struct stlist * l, uint32_t idx)
+{
+  // Basic checks
+  if(idx >= l->len || !l) return;
+  // Overwrite
+  if(l->len > 1 && idx < (l->len - 1))
+    memcpy(l->data + idx * l->elsize, l->data + (l->len - 1) * l->elsize, l->elsize);
+  l->len--;
+}
 
 void * stl_get(struct stlist * l, uint32_t n)
 {

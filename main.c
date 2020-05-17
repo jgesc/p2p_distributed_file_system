@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include "internal_state.h"
 #include "networking/networking.h"
@@ -24,6 +25,7 @@ void nodeconnect(struct internal_state * self, struct peer_addr * seed)
   struct packet * res = (void*)buffer;
   struct msg_peers * rescnt = (void*)res->payload.content;
   printf("Received %d new peers from seed\n", rescnt->count);
+  meet_new_peer(self, seed);
 }
 
 void node(struct peer_addr * seed, short port)
@@ -41,6 +43,7 @@ void node(struct peer_addr * seed, short port)
   int addrlen;
   while(1)
   {
+    printf("Knows %d peers\n", self->neighbors->len);
     recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
     procmsg(self, buffer);
   }
@@ -48,6 +51,8 @@ void node(struct peer_addr * seed, short port)
 
 int main(int argc, char ** argv)
 {
+  srand(time(NULL));
+
   struct peer_addr seed;
   seed.addr.sin_family = AF_INET;
   seed.addr.sin_port = htons(8888);

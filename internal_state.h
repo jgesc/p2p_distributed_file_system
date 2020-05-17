@@ -24,4 +24,7 @@ struct internal_state * init_self(short port);
 // Frees an internal state memory block
 void free_internal_state(struct internal_state * is);
 
+// Meets a new peer, forgetting a random known peer if neccessary
+void meet_new_peer(struct internal_state * self, struct peer_addr * peer);
+
 #endif

@@ -22,6 +22,9 @@ void procmsg_join(struct internal_state * self, struct packet * msg)
     payload->count = msgpayload->reqcon;
   }
   send_sc(self, PEERS, payload, payload->count * self->neighbors->elsize, &msg->src);
+
+  // Add peer to peer list
+  meet_new_peer(self, &msg->src);
 }
 
 void procmsg(struct internal_state * self, void * buffer)
