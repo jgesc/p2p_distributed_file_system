@@ -31,7 +31,7 @@ struct internal_state * init_self(short port)
 
 void meet_new_peer(struct internal_state * self, struct peer_addr * peer)
 {
-  // TODO: Check if already is in neighbor list
+  if(stl_contains(self->neighbors, peer, (void*)cmppaddr)) return;
 
   if(self->neighbors->len >= self->neighbors->max)
   {

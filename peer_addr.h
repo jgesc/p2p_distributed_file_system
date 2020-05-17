@@ -9,4 +9,6 @@ struct peer_addr
   struct sockaddr_in addr;
 };
 
+int cmppaddr(struct peer_addr * a, struct peer_addr * b);
+
 #endif

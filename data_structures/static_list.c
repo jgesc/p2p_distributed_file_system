@@ -19,7 +19,13 @@ int stl_add(struct stlist * l, void * d)
   return 1;
 }
 
-//int stl_contains(struct stlist * l, void * ele, int (*cmpfun)(void*, void*));
+int stl_contains(struct stlist * l, void * ele, int (*cmpfun)(void*, void*))
+{
+  int i;
+  for(i = 0; i < l->len; i++)
+    if((*cmpfun)(l->data + i * l->elsize, ele)) return 1;
+  return 0;
+}
 
 void stl_remove(struct stlist * l, uint32_t idx)
 {
