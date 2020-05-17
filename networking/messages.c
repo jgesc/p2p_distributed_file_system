@@ -18,13 +18,36 @@ void procmsg_join(struct internal_state * self, struct packet * msg)
   }
   else
   {
-    return;
+    // TODO: implement random
+    memcpy(payload->peers, self->neighbors->data, msgpayload->reqcon * self->neighbors->elsize);
     payload->count = msgpayload->reqcon;
   }
   send_sc(self, PEERS, payload, payload->count * self->neighbors->elsize, &msg->src);
 
   // Add peer to peer list
   meet_new_peer(self, &msg->src);
+}
+
+void procmsg_peers(struct internal_state * self, struct packet * msg)
+{
+  printf("RECEIVED Peer list\n");
+
+  // Point to payload
+  struct msg_peers * peerlist = (void*)msg->payload.content;
+
+  // Iterate through peers
+  int i;
+  for(i = 0; i < peerlist->count; i++)
+    meet_new_peer(self, &(peerlist->peers[i]));
+}
+
+void procmsg_addme(struct internal_state * self, struct packet * msg)
+{
+  // Point to payload
+  struct msg_addme * addme = (void*)msg->payload.content;
+
+  //Add peer
+  meet_new_peer(self, &(addme->peer));
 }
 
 void procmsg(struct internal_state * self, void * buffer)
@@ -38,8 +61,49 @@ void procmsg(struct internal_state * self, void * buffer)
     case JOIN:
       procmsg_join(self, msg);
       break;
+    case PEERS:
+      procmsg_peers(self, msg);
+      break;
+    case ADDME:
+      procmsg_addme(self, msg);
+      break;
     default:
       printf("Unknown\n");
       break;
+  }
+}
+
+int handlenetl(struct internal_state * self, void * buffer)
+{
+  // Cast
+  struct packet * msg = buffer;
+
+  // Handle packet depending on net header type
+  switch(msg->hdrtype)
+  {
+    // Singlecast
+    case SC:
+      return 1;
+    // Randomcast
+    case RC:
+    {
+      // Get header
+      struct randomcast_hdr * hdr = &(msg->hdr_rc);
+      // Check remaining hops
+      if(hdr->hops > 0)
+      {
+        // Ignore message and relay
+        relay_rc(self, buffer);
+        return 0;
+      }
+      else
+        // Process message
+        printf("Received randomcast");
+        return 1;
+    }
+    // Broadcast
+      return 0; // TODO: implement
+    default:
+      return 0;
   }
 }

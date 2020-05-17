@@ -8,8 +8,9 @@
 #include <netinet/in.h>
 
 #include "packets.h"
+#include "../internal_state.h"
 
-enum msgtype {JOIN, PEERS};
+enum msgtype {JOIN, PEERS, ADDME};
 
 // Send singlecast
 int send_sc(struct internal_state * self, enum msgtype cnttype, void * payload, uint16_t cntlen, struct peer_addr * dest);
@@ -19,5 +20,8 @@ int send_rc(struct internal_state * self, enum msgtype cnttype, void * payload, 
 
 // Send broadcast
 int send_bc(struct internal_state * self, enum msgtype cnttype, void * payload, uint16_t cntlen, int16_t breadth);
+
+// Realay randomcast
+int relay_rc(struct internal_state * self, struct packet * pckt);
 
 #endif

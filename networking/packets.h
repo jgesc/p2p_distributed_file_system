@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "messages.h"
+#include "../peer_addr.h"
 
 /// Macro definitions
 // Constants

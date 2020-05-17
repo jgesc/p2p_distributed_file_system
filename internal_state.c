@@ -8,6 +8,7 @@ struct internal_state * init_self(short port)
   state->selfaddr.addr.sin_family = AF_INET;
   state->selfaddr.addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   state->selfaddr.addr.sin_port = htons(port);
+  state->selfaddr.id = getpid() * 10000 + rand();
 
   // Socket creation
   if((state->sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
@@ -30,6 +31,8 @@ struct internal_state * init_self(short port)
 
 void meet_new_peer(struct internal_state * self, struct peer_addr * peer)
 {
+  // TODO: Check if already is in neighbor list
+
   if(self->neighbors->len >= self->neighbors->max)
   {
     // Forget random peer

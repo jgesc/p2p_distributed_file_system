@@ -5,6 +5,11 @@
 #include <unistd.h>
 #include "internal_state.h"
 #include "networking/networking.h"
+#include "networking/messages.h"
+
+const int reqcon = 4;
+const int rdcon = 4;
+const int rdconhops = 8;
 
 void nodeconnect(struct internal_state * self, struct peer_addr * seed)
 {
@@ -17,7 +22,7 @@ void nodeconnect(struct internal_state * self, struct peer_addr * seed)
   // Send JOIN message
   struct msg_join payload;
   payload.newpeer = self->selfaddr;
-  payload.reqcon = 4;
+  payload.reqcon = reqcon;
   send_sc(self, JOIN, (void *)&payload, sizeof(struct msg_join), seed);
 
   // Wait for response
@@ -25,7 +30,15 @@ void nodeconnect(struct internal_state * self, struct peer_addr * seed)
   struct packet * res = (void*)buffer;
   struct msg_peers * rescnt = (void*)res->payload.content;
   printf("Received %d new peers from seed\n", rescnt->count);
+  procmsg(self, buffer);
   meet_new_peer(self, seed);
+
+  // Send ADDME randomcasts
+  int i;
+  struct msg_addme payload2;
+  payload2.peer = self->selfaddr;
+  for(i = 0; i < rdcon; i++)
+    send_rc(self, ADDME, (void *)&payload2, sizeof(struct msg_addme), rdconhops);
 }
 
 void node(struct peer_addr * seed, short port)
@@ -45,7 +58,8 @@ void node(struct peer_addr * seed, short port)
   {
     printf("Knows %d peers\n", self->neighbors->len);
     recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
-    procmsg(self, buffer);
+    if(handlenetl(self, buffer))
+      procmsg(self, buffer);
   }
 }
 
@@ -58,8 +72,12 @@ int main(int argc, char ** argv)
   seed.addr.sin_port = htons(8888);
   seed.addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-  if(argc == 1) node(NULL, 8888);
-  else node(&seed, 8889);
+  if(argc == 1)
+    node(NULL, 8888);
+  else if(argc == 2)
+    node(&seed, 8889);
+  else
+    node(&seed, 8890);
 
   return 0;
 }
