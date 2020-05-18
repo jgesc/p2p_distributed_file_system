@@ -43,6 +43,8 @@ void procmsg_peers(struct internal_state * self, struct packet * msg)
 
 void procmsg_addme(struct internal_state * self, struct packet * msg)
 {
+  printf("RECIVED addme\n");
+
   // Point to payload
   struct msg_addme * addme = (void*)msg->payload.content;
 
@@ -98,7 +100,7 @@ int handlenetl(struct internal_state * self, void * buffer)
       }
       else
         // Process message
-        printf("Received randomcast");
+        printf("Received randomcast\n");
         return 1;
     }
     // Broadcast

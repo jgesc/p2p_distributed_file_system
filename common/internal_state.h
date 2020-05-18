@@ -27,4 +27,7 @@ void free_internal_state(struct internal_state * is);
 // Meets a new peer, forgetting a random known peer if neccessary
 void meet_new_peer(struct internal_state * self, struct peer_addr * peer);
 
+// Prints known peer ids
+void print_peers(struct internal_state * self);
+
 #endif

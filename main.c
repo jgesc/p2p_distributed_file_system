@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#include "internal_state.h"
-#include "networking/networking.h"
-#include "networking/messages.h"
+#include "common/internal_state.h"
+#include "common/networking/networking.h"
+#include "common/networking/messages.h"
 
 const int reqcon = 4;
 const int rdcon = 4;
@@ -56,7 +56,7 @@ void node(struct peer_addr * seed, short port)
   int addrlen;
   while(1)
   {
-    printf("Knows %d peers\n", self->neighbors->len);
+    print_peers(self);
     recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
     if(handlenetl(self, buffer))
       procmsg(self, buffer);
@@ -65,19 +65,31 @@ void node(struct peer_addr * seed, short port)
 
 int main(int argc, char ** argv)
 {
+  // Parse arguments
+  if(argc != 4 && argc != 2)
+  {
+    printf("Usage:\n\t%s PORT [SEED_IP SEED_PORT]\n", argv[0]);
+    return 0;
+  }
   srand(time(NULL));
+  if(argc == 4)
+  {
+    short port = atoi(argv[1]);
+    char * seedip = argv[2];
+    short seedport = atoi(argv[3]);
 
-  struct peer_addr seed;
-  seed.addr.sin_family = AF_INET;
-  seed.addr.sin_port = htons(8888);
-  seed.addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    struct peer_addr seed;
+    seed.addr.sin_family = AF_INET;
+    seed.addr.sin_port = htons(seedport);
+    seed.addr.sin_addr.s_addr = inet_addr(seedip);
 
-  if(argc == 1)
-    node(NULL, 8888);
-  else if(argc == 2)
-    node(&seed, 8889);
+    node(&seed, port);
+  }
   else
-    node(&seed, 8890);
+  {
+    short port = atoi(argv[1]);
+    node(NULL, port);
+  }
 
   return 0;
 }

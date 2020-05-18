@@ -31,6 +31,9 @@ struct internal_state * init_self(short port)
 
 void meet_new_peer(struct internal_state * self, struct peer_addr * peer)
 {
+  // Check if peer is self
+  if(peer->id == self->selfaddr.id) return;
+  // Check if already knows peer
   if(stl_contains(self->neighbors, peer, (void*)cmppaddr)) return;
 
   if(self->neighbors->len >= self->neighbors->max)
@@ -41,4 +44,16 @@ void meet_new_peer(struct internal_state * self, struct peer_addr * peer)
   }
 
   stl_add(self->neighbors, peer);
+}
+
+void print_peers(struct internal_state * self)
+{
+  printf("==KNOWN PEERS==\n");
+  int i;
+  for(i = 0; i < self->neighbors->len; i++)
+  {
+    struct peer_addr * addr = stl_get(self->neighbors, i);
+    printf("%lld\n", addr->id);
+  }
+  printf("===============\n");
 }
