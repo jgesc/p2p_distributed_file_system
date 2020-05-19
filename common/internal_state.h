@@ -9,12 +9,14 @@
 #include <netinet/in.h>
 
 #include "data_structures/static_list.h"
+#include "data_structures/circular_static_list.h"
 #include "peer_addr.h"
 
 struct internal_state
 {
   struct peer_addr selfaddr;
   struct stlist * neighbors;
+  struct cstlist * bchist;
   int sock;
 };
 

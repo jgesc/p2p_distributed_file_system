@@ -10,7 +10,7 @@
 #include "packets.h"
 #include "../internal_state.h"
 
-enum msgtype {JOIN, PEERS, ADDME};
+enum msgtype {JOIN, PEERS, ADDME, PING};
 
 // Send singlecast
 int send_sc(struct internal_state * self, enum msgtype cnttype, void * payload, uint16_t cntlen, struct peer_addr * dest);
@@ -23,5 +23,8 @@ int send_bc(struct internal_state * self, enum msgtype cnttype, void * payload, 
 
 // Realay randomcast
 int relay_rc(struct internal_state * self, struct packet * pckt);
+
+// Relay broadcast
+int relay_bc(struct internal_state * self, struct packet * pckt);
 
 #endif

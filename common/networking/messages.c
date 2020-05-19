@@ -52,6 +52,17 @@ void procmsg_addme(struct internal_state * self, struct packet * msg)
   meet_new_peer(self, &(addme->peer));
 }
 
+void procmsg_ping(struct internal_state * self, struct packet * msg)
+{
+  printf("RECEIVED ping\n");
+
+  // Point to payload
+  struct msg_ping * ping = (void*)msg->payload.content;
+
+  // Pong
+  send_sc(self, PING, ping, sizeof(struct msg_ping), &msg->src);
+}
+
 void procmsg(struct internal_state * self, void * buffer)
 {
   struct packet * msg = buffer;
@@ -68,6 +79,9 @@ void procmsg(struct internal_state * self, void * buffer)
       break;
     case ADDME:
       procmsg_addme(self, msg);
+      break;
+    case PING:
+      procmsg_ping(self, msg);
       break;
     default:
       printf("Unknown\n");
@@ -99,12 +113,26 @@ int handlenetl(struct internal_state * self, void * buffer)
         return 0;
       }
       else
+      {
         // Process message
         printf("Received randomcast\n");
         return 1;
+      }
     }
     // Broadcast
-      return 0; // TODO: implement
+    case BC:
+    {
+      // Get header
+      struct broadcast_hdr * hdr = &(msg->hdr_bc);
+      // Check if packet is repeated ignore
+      if(cstl_contains(self->bchist, hdr->uid)) return 0;
+      // Check if needs to relay
+      if(hdr->breadth > 0)
+        relay_bc(self, buffer);
+      // Process message
+      printf("Received broadcast\n");
+      return 1;
+    }
     default:
       return 0;
   }

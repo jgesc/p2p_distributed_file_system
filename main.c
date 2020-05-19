@@ -71,7 +71,7 @@ int main(int argc, char ** argv)
     printf("Usage:\n\t%s PORT [SEED_IP SEED_PORT]\n", argv[0]);
     return 0;
   }
-  srand(time(NULL));
+  srand(time(NULL) + getpid());
   if(argc == 4)
   {
     short port = atoi(argv[1]);

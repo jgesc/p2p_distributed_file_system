@@ -25,6 +25,12 @@ struct msg_addme
   struct peer_addr peer;
 };
 
+// Ping
+struct msg_ping
+{
+  uint64_t echo;
+};
+
 // Handles packet at network-overlay level
 int handlenetl(struct internal_state * self, void * buffer);
 

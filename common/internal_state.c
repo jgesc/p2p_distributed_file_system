@@ -1,10 +1,13 @@
 #include "internal_state.h"
 
+#define CONST_BCHIST_LEN 64
+
 struct internal_state * init_self(short port)
 {
   // Allocate internal state
   struct internal_state * state = malloc(sizeof(struct internal_state));
   state->neighbors = stl_new(32, sizeof(struct peer_addr));
+  state->bchist = cstl_new(CONST_BCHIST_LEN);
   state->selfaddr.addr.sin_family = AF_INET;
   state->selfaddr.addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   state->selfaddr.addr.sin_port = htons(port);
