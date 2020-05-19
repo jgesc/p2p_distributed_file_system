@@ -11,7 +11,9 @@ struct internal_state * init_self(short port)
   state->selfaddr.addr.sin_family = AF_INET;
   state->selfaddr.addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   state->selfaddr.addr.sin_port = htons(port);
-  state->selfaddr.id = getpid() * 10000 + rand();
+  state->selfaddr.id = getpid() * 10000 + ((uint64_t)rand() << 48) | ((uint64_t)rand() << 32) | (rand() << 16) | rand();
+  snprintf(state->fpath, 64, "nodo-%llu", state->selfaddr.id);
+  mkdir(state->fpath, 0700);
 
   // Socket creation
   if((state->sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {

@@ -1,9 +1,11 @@
-#ifndef __MESSAGES_H__
-#define __MESSAGES_H__
+#ifndef __MSGDEFS_H__
+#define __MSGDEFS_H__
 
 #include "../peer_addr.h"
-#include "../internal_state.h"
-#include "networking.h"
+
+#define CONST_FILE_SIZE 8192
+
+enum msgtype {JOIN, PEERS, ADDME, PING, FILEFRAG};
 
 // Network joining message
 struct msg_join
@@ -31,10 +33,11 @@ struct msg_ping
   uint64_t echo;
 };
 
-// Handles packet at network-overlay level
-int handlenetl(struct internal_state * self, void * buffer);
-
-// Handles packet payload
-void procmsg(struct internal_state * self, void * buffer);
+// File
+struct msg_file
+{
+  uint64_t hash[4]; //256 bit hash
+  uint8_t data[CONST_FILE_SIZE];
+};
 
 #endif

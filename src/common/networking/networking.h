@@ -9,8 +9,7 @@
 
 #include "packets.h"
 #include "../internal_state.h"
-
-enum msgtype {JOIN, PEERS, ADDME, PING};
+#include "msgdefs.h"
 
 // Send singlecast
 int send_sc(struct internal_state * self, enum msgtype cnttype, void * payload, uint16_t cntlen, struct peer_addr * dest);

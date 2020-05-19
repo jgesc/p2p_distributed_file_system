@@ -63,6 +63,21 @@ void procmsg_ping(struct internal_state * self, struct packet * msg)
   send_sc(self, PING, ping, sizeof(struct msg_ping), &msg->src);
 }
 
+void procmsg_filefrag(struct internal_state * self, struct packet * msg)
+{
+  printf("RECEIVED file fragment");
+
+  // Point to payload
+  struct msg_file * file = (void*)msg->payload.content;
+
+  // Check hash
+  if(hashreduce((void*)file->hash) % CONST_SHARDS != self->selfaddr.id % CONST_SHARDS)
+    return; // Ignore
+
+  // If doesn't exist store
+  if(!fm_exists(self, file)) fm_store(self, file);
+}
+
 void procmsg(struct internal_state * self, void * buffer)
 {
   struct packet * msg = buffer;
@@ -82,6 +97,9 @@ void procmsg(struct internal_state * self, void * buffer)
       break;
     case PING:
       procmsg_ping(self, msg);
+      break;
+    case FILEFRAG:
+      procmsg_filefrag(self, msg);
       break;
     default:
       printf("Unknown\n");

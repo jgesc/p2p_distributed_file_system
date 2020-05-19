@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -17,6 +18,7 @@ struct internal_state
   struct peer_addr selfaddr;
   struct stlist * neighbors;
   struct cstlist * bchist;
+  char fpath[64];
   int sock;
 };
 
