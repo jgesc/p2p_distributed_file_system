@@ -68,6 +68,29 @@ int main(int argc, char ** argv)
       break;
     }
     case 3:
+    {
+      printf("PING!\n");
+      // Allocate memory in stack
+      uint8_t _pckt[65336];
+      struct packet * pckt = (struct packet *)_pckt;
+
+      // Fill packet fields
+      pckt->hdrtype = BC;
+      pckt->src = self->selfaddr;
+      pckt->hdr_bc.breadth = 5;
+      pckt->payload.cnttype = PING;
+      pckt->payload.len = sizeof(struct msg_ping);
+      pckt->hdr_bc.uid = ((uint64_t)rand() << 48) | ((uint64_t)rand() << 32) | (rand() << 16) | rand();
+      // Fill payload
+      ((struct msg_ping *)(pckt->payload.content))->echo = rand();
+      // Send
+      sendto(self->sock, pckt, sizeof(_pckt), 0, (const struct sockaddr *) (&(seed.addr)), sizeof(struct sockaddr_in));
+      recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
+      struct msg_ping * pong = (void*)((struct packet *)buffer)->payload.content;
+      uint32_t pongs = 0;
+      if(pong->echo == payload.echo) printf("PONG %u!\n", pongs++);
+      break;
+    }
 
     default:
     {
