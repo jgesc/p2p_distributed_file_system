@@ -94,6 +94,36 @@ void procmsg_filefrag(struct internal_state * self, struct packet * msg)
   }
 }
 
+void procmsg_fileget(struct internal_state * self, struct packet * msg)
+{
+  printf("GET file fragment\n");
+
+  // Point to payload
+  struct msg_get * get = (void*)(msg->payload.content);
+  // Check hash
+  if(hashreduce((void*)&get->hash) % CONST_SHARDS != self->selfaddr.id % CONST_SHARDS)
+    return; // Ignore
+  // Allocate response
+  struct msg_file file = {0};
+  file.hash = get->hash;
+  // Read file
+  if(!fm_read(self, &file)) return;
+  // Send file
+  send_sc(self, FILEFRAG, &file, sizeof(struct msg_file), &msg->src);
+}
+
+void procmsg_find(struct internal_state * self, struct packet * msg)
+{
+  printf("FIND received\n");
+
+  // Point to payload
+  struct msg_find * find = (void*)(msg->payload.content);
+  // Check mod
+  if(find->mod != self->selfaddr.id % CONST_SHARDS) return;
+  // Answer
+  send_sc(self, NONE, NULL, 0, &find->src);
+}
+
 void procmsg(struct internal_state * self, void * buffer)
 {
   struct packet * msg = buffer;
@@ -116,6 +146,12 @@ void procmsg(struct internal_state * self, void * buffer)
       break;
     case FILEFRAG:
       procmsg_filefrag(self, msg);
+      break;
+    case FILEGET:
+      procmsg_fileget(self, msg);
+      break;
+    case FIND:
+      procmsg_find(self, msg);
       break;
     default:
       printf("Unknown\n");

@@ -7,8 +7,9 @@
 
 struct idxfile
 {
-  char name[31];
+  char name[29];
   uint8_t fragcount;
+  uint16_t lfsize;
   struct hash frags[255];
 };
 

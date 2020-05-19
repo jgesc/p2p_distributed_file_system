@@ -14,7 +14,6 @@ struct internal_state * init_self(short port)
   state->selfaddr.addr.sin_port = htons(port);
   state->selfaddr.id = getpid() * 10000 + (((uint64_t)rand() << 48) | ((uint64_t)rand() << 32) | (rand() << 16) | rand()) + rand();
   snprintf(state->fpath, 64, "nodo-%llu-%x", state->selfaddr.id, (unsigned int)(state->selfaddr.id % CONST_SHARDS));
-  mkdir(state->fpath, 0700);
 
   // Socket creation
   if((state->sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {

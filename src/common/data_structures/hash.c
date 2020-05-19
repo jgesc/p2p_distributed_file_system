@@ -24,7 +24,20 @@ struct hash hash(void * data, size_t l)
   return hstrct;
 }
 
+struct hash parsehash(char * strhash)
+{
+  struct hash hash = {0};
+  if(strlen(strhash) != 64) return hash;
+  sscanf(strhash, "%016lx%016lx%016lx%016lx", &hash.a, &hash.b, &hash.c, &hash.d);
+  return hash;
+}
+
 uint64_t hashreduce(struct hash * hash)
 {
   return hash->a + hash->b + hash->c + hash->d;
+}
+
+int hashcmp(struct hash * a, struct hash * b)
+{
+  return (a->a == b->a) && (a->b == b->b) && (a->c == b->c) && (a->d == b->d);
 }
