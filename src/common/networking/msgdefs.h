@@ -2,6 +2,7 @@
 #define __MSGDEFS_H__
 
 #include "../peer_addr.h"
+#include "../data_structures/hash.h"
 
 #define CONST_FILE_SIZE 8192
 
@@ -36,7 +37,7 @@ struct msg_ping
 // File
 struct msg_file
 {
-  uint64_t hash[4]; //256 bit hash
+  struct hash hash; //256 bit hash
   uint8_t data[CONST_FILE_SIZE];
 };
 

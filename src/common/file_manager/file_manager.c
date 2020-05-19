@@ -6,7 +6,7 @@ int fm_exists(struct internal_state * self, void * msg_file)
   struct msg_file * msg = msg_file;
   // Format path
   char path[130];
-  struct hash * h = (void*)msg->hash;
+  struct hash * h = (void*)&msg->hash;
   snprintf(path, 130, "%s/%016lx%016lx%016lx%016lx", self->fpath, h->a, h->b, h->c, h->d);
 
   // Check if exists
@@ -26,7 +26,7 @@ int fm_store(struct internal_state * self, void * msg_file)
   struct msg_file * msg = msg_file;
   // Format path
   char path[130];
-  struct hash * h = (void*)msg->hash;
+  struct hash * h = (void*)&msg->hash;
   snprintf(path, 130, "%s/%016lx%016lx%016lx%016lx", self->fpath, h->a, h->b, h->c, h->d);
   // Open file
   FILE * f = fopen(path, "wb");
@@ -46,7 +46,7 @@ int fm_read(struct internal_state * self, void * msg_file)
   struct msg_file * msg = msg_file;
   // Format path
   char path[130];
-  struct hash * h = (void*)msg->hash;
+  struct hash * h = (void*)&msg->hash;
   snprintf(path, 130, "%s/%016lx%016lx%016lx%016lx", self->fpath, h->a, h->b, h->c, h->d);
   // Open file
   FILE * f = fopen(path, "rb");

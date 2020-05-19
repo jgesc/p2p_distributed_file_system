@@ -9,7 +9,7 @@
 
 /// Macro definitions
 // Constants
-#define HEADER_LEN sizeof(struct packet);
+#define HEADER_LEN sizeof(struct packet)
 
 /// Enum definitions
 // Header types

@@ -7,9 +7,9 @@
 #include "common/networking/networking.h"
 #include "common/networking/messages.h"
 
-const int reqcon = 4;
-const int rdcon = 4;
-const int rdconhops = 8;
+const int reqcon = 6;
+const int rdcon = 6;
+const int rdconhops = 4;
 
 void nodeconnect(struct internal_state * self, struct peer_addr * seed)
 {

@@ -65,17 +65,33 @@ void procmsg_ping(struct internal_state * self, struct packet * msg)
 
 void procmsg_filefrag(struct internal_state * self, struct packet * msg)
 {
-  printf("RECEIVED file fragment");
+  printf("RECEIVED file fragment\n");
 
   // Point to payload
-  struct msg_file * file = (void*)msg->payload.content;
+  struct msg_file * file = (void*)(msg->payload.content);
 
   // Check hash
-  if(hashreduce((void*)file->hash) % CONST_SHARDS != self->selfaddr.id % CONST_SHARDS)
+  printf("%016lx%016lx%016lx%016lx\t%lx\n", file->hash.a, file->hash.b, file->hash.c, file->hash.d, hashreduce(&file->hash) % 16);
+  if(hashreduce((void*)&file->hash) % CONST_SHARDS != self->selfaddr.id % CONST_SHARDS)
+  {
+    printf("%lx != %llx\n", hashreduce((void*)(&(file->hash))) % CONST_SHARDS, self->selfaddr.id % CONST_SHARDS);
     return; // Ignore
+  }
+  else
+  {
+    printf("%lx == %llx\n", hashreduce((void*)(&(file->hash))) % CONST_SHARDS, self->selfaddr.id % CONST_SHARDS);
+  }
 
   // If doesn't exist store
-  if(!fm_exists(self, file)) fm_store(self, file);
+  if(!fm_exists(self, file))
+  {
+    printf("STORE\n");
+    fm_store(self, file);
+  }
+  else
+  {
+    printf("ALREADY STORED\n");
+  }
 }
 
 void procmsg(struct internal_state * self, void * buffer)
