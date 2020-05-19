@@ -54,7 +54,7 @@ void procmsg_addme(struct internal_state * self, struct packet * msg)
 
 void procmsg_ping(struct internal_state * self, struct packet * msg)
 {
-  printf("RECEIVED ping\n");
+  printf("RECEIVED ping %lx\n", ((struct msg_ping *)(msg->payload.content))->echo);
 
   // Point to payload
   struct msg_ping * ping = (void*)msg->payload.content;
@@ -126,6 +126,8 @@ int handlenetl(struct internal_state * self, void * buffer)
       struct broadcast_hdr * hdr = &(msg->hdr_bc);
       // Check if packet is repeated ignore
       if(cstl_contains(self->bchist, hdr->uid)) return 0;
+      // Else add to history
+      else cstl_add(self->bchist, hdr->uid);
       // Check if needs to relay
       if(hdr->breadth > 0)
         relay_bc(self, buffer);

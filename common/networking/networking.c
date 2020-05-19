@@ -75,7 +75,7 @@ int send_bc(struct internal_state * self, enum msgtype cnttype, void * payload, 
 
 int relay_bc(struct internal_state * self, struct packet * pckt)
 {
-  printf("Received broadcast with %d breadth\n", pckt->hdr_bc.breadth);
+  printf("Relaying broadcast with %d breadth\n", pckt->hdr_bc.breadth);
   // Decrease hop count
   pckt->hdr_bc.breadth--;
   // Send

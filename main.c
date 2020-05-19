@@ -56,7 +56,6 @@ void node(struct peer_addr * seed, short port)
   int addrlen;
   while(1)
   {
-    print_peers(self);
     recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
     if(handlenetl(self, buffer))
       procmsg(self, buffer);
