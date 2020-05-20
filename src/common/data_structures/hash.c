@@ -13,9 +13,9 @@ struct hash hash(void * data, size_t l)
   for(i = 0; i < l / 8; i++)
   {
     hstrct.a = (hstrct.a ^ d[i]) * fnv_prime;
-    hstrct.b = hstrct.a;
-    hstrct.c = hstrct.a;
-    hstrct.d = hstrct.a;
+    hstrct.b = (hstrct.b ^ d[i]) * fnv_prime;
+    hstrct.c = (hstrct.c ^ d[i]) * fnv_prime;
+    hstrct.d = (hstrct.d ^ d[i]) * fnv_prime;
   }
 
   return hstrct;
@@ -31,7 +31,7 @@ struct hash parsehash(char * strhash)
 
 uint64_t hashreduce(struct hash * hash)
 {
-  return hash->a + hash->b + hash->c + hash->d;
+  return hash->a;
 }
 
 int hashcmp(struct hash * a, struct hash * b)

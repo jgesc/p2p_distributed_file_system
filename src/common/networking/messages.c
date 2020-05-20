@@ -90,7 +90,7 @@ void procmsg_filefrag(struct internal_state * self, struct packet * msg)
   }
   else
   {
-    //printf("ALREADY STORED\n");
+    printf("ALREADY STORED\n");
   }
 }
 

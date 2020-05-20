@@ -52,7 +52,7 @@ void download_fragment(struct internal_state * self, struct hash * hash, FILE * 
   }
   // Store
   fwrite(((struct msg_file *)pckt->payload.content)->data, 1, bytes, out);
-  printf("Downloaded %016lx%016lx%016lx%016lx\n", hash->a, hash->b, hash->c, hash->d);
+  //printf("Downloaded %016lx%016lx%016lx%016lx\n", hash->a, hash->b, hash->c, hash->d);
 }
 
 int main(int argc, char ** argv)
@@ -106,7 +106,7 @@ int main(int argc, char ** argv)
     if(pckt->payload.cnttype == FILEFRAG) break;
   }
   memcpy(&idx, ((struct msg_file *)pckt->payload.content)->data, CONST_FILE_SIZE);
-  //printf("File '%s'\n\tFragments: %d\n\tSize: %d bytes\n", idx.name, idx.fragcount, CONST_FILE_SIZE * (idx.fragcount - 1) + idx.lfsize);
+  printf("File '%s'\n\tFragments: %d\n\tSize: %d bytes\n", idx.name, idx.fragcount, CONST_FILE_SIZE * (idx.fragcount - 1) + idx.lfsize);
 
   // Download file fragments
   char fname[30] = {0};

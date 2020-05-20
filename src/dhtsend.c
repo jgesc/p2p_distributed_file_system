@@ -35,6 +35,16 @@ int main(int argc, char ** argv)
     perror("Can't open file");
     return 1;
   }
+  // Check file size
+  fseek(f, 0L, SEEK_END);
+  size_t fsz = ftell(f);
+  if(fsz > 2088960)
+  {
+    printf("File exceeds size limit (%lu > %u)\n", fsz, 2088960);
+    fclose(f);
+    return 0;
+  }
+  rewind(f);
   // Initialize random
   srand(time(NULL));
   // Initialize self
