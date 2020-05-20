@@ -1,3 +1,7 @@
+/** index_file.h
+ *  Index file structure
+ */
+
 #ifndef __INDEX_FILE_H__
 #define __INDEX_FILE_H__
 

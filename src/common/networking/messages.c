@@ -1,5 +1,7 @@
 #include "messages.h"
 
+/// Message behaviour
+
 void procmsg_join(struct internal_state * self, struct packet * msg)
 {
   //printf("RECEIVED Request to join\n");
@@ -123,6 +125,8 @@ void procmsg_find(struct internal_state * self, struct packet * msg)
   // Answer
   send_sc(self, NONE, NULL, 0, &find->src);
 }
+
+/// Entry points
 
 void procmsg(struct internal_state * self, void * buffer)
 {

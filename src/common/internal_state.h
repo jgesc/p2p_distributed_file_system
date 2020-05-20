@@ -1,5 +1,11 @@
+/** internal_state.h
+ *  Node's persistent state
+ */
+
 #ifndef __INTERNAL_STATE_H__
 #define __INTERNAL_STATE_H__
+
+/// Includes
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +19,8 @@
 #include "data_structures/circular_static_list.h"
 #include "peer_addr.h"
 
+/// Structs
+
 struct internal_state
 {
   struct peer_addr selfaddr;
@@ -21,6 +29,8 @@ struct internal_state
   char fpath[64];
   int sock;
 };
+
+/// Prototypes
 
 // Allocates memory for the internal state
 struct internal_state * init_self(short port);

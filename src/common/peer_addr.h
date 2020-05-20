@@ -1,3 +1,7 @@
+/** networking.h
+ *  Address used in virtual network
+ */
+
 #ifndef __PEER_ADDR_H__
 #define __PEER_ADDR_H__
 

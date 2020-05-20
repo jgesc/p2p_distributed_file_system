@@ -1,3 +1,7 @@
+/** file_manager.h
+ *  Handles file read and write
+ */
+
 #ifndef __FILE_MANAGER_H__
 #define __FILE_MANAGER_H__
 

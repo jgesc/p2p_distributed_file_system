@@ -1,3 +1,7 @@
+/** packets.h
+ *  Virtual network packet definition
+ */
+
 #ifndef __PACKETS_H__
 #define __PACKETS_H__
 

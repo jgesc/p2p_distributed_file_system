@@ -1,12 +1,22 @@
+/** msgdefs.h
+ *  Defines messages and their structure
+ */
+
 #ifndef __MSGDEFS_H__
 #define __MSGDEFS_H__
+
+/// Includes
 
 #include "../peer_addr.h"
 #include "../data_structures/hash.h"
 
 #define CONST_FILE_SIZE 8192
 
+/// Enum
+
 enum msgtype {NONE, JOIN, PEERS, ADDME, PING, FILEFRAG, FILEGET, FIND};
+
+/// Structs
 
 // Network joining message
 struct msg_join

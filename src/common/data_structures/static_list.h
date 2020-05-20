@@ -1,9 +1,17 @@
+/** static_list.h
+ *  List data structure in static memory
+ */
+
 #ifndef __STATIC_LIST_H__
 #define __STATIC_LIST_H__
+
+/// Includes
 
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+/// Structures
 
 // Static memory list struct
 struct stlist

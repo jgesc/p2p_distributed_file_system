@@ -1,5 +1,11 @@
+/** networking.h
+ *  Handles virtual network sending modes
+ */
+
 #ifndef __NETWORKING_H__
 #define __NETWORKING_H__
+
+/// Includes
 
 #include <stdint.h>
 #include <string.h>
@@ -10,6 +16,8 @@
 #include "packets.h"
 #include "../internal_state.h"
 #include "msgdefs.h"
+
+/// Prototypes
 
 // Send singlecast
 int send_sc(struct internal_state * self, enum msgtype cnttype, void * payload, uint16_t cntlen, struct peer_addr * dest);
