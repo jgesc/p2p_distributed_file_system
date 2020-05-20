@@ -14,8 +14,8 @@ const int rdconhops = 4;
 void nodeconnect(struct internal_state * self, struct peer_addr * seed)
 {
   uint8_t buffer[65536];
-  struct sockaddr_in cliaddr;
-  int addrlen;
+  struct sockaddr_in cliaddr = {0};
+  int addrlen = 0;
 
   printf("Connecting to seed\n");
 
