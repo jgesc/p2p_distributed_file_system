@@ -71,14 +71,17 @@ int main(int argc, char ** argv)
     fragid++;
     // Copy payload
     memcpy(pckt->payload.content, &msg, sizeof(struct msg_file));
-    printf("SENT %016lx%016lx%016lx%016lx\t%lx\n", msg.hash.a, msg.hash.b, msg.hash.c, msg.hash.d, hashreduce(&msg.hash) % 16);
+    //printf("SENT %016lx%016lx%016lx%016lx\t%lx\n", msg.hash.a, msg.hash.b, msg.hash.c, msg.hash.d, hashreduce(&msg.hash) % 16);
     // Send
     sendto(self->sock, pckt, pkt_len(pckt), 0, (const struct sockaddr *) (&(seed.addr)), sizeof(struct sockaddr_in));
 
     // Clear buffer
     memset(&msg, 0, sizeof(struct msg_file));
     usleep(100000);
+    putchar('#');
+    fflush(stdout);
   }
+  //printf("\nFrags: %d\n", fragid);
   // Store fragment count
   idx.fragcount = fragid;
   idx.lfsize = (uint16_t)lrbytes;
@@ -91,8 +94,10 @@ int main(int argc, char ** argv)
   pckt->hdr_bc.uid = getpid() * 10000 + (((uint64_t)rand() << 48) | ((uint64_t)rand() << 32) | (rand() << 16) | rand());
   // Send
   sendto(self->sock, pckt, pkt_len(pckt), 0, (const struct sockaddr *) (&(seed.addr)), sizeof(struct sockaddr_in));
+  putchar('#');
+  fflush(stdout);
   // Print result
-    printf("%016lx%016lx%016lx%016lx\n", msg.hash.a, msg.hash.b, msg.hash.c, msg.hash.d);
+  printf("\n%016lx%016lx%016lx%016lx\n", msg.hash.a, msg.hash.b, msg.hash.c, msg.hash.d);
   // Close file
   fclose(f);
 }

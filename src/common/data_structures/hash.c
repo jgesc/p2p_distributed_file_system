@@ -5,21 +5,18 @@ struct hash hash(void * data, size_t l)
   uint32_t i;
   struct hash hstrct = {0};
   uint64_t * d = data;
-  for(i = 0; i <= l / 32; i++)
+  const uint64_t fnv_prime = 1099511628211ull;
+  hstrct.a = 14695981039346656037ull;
+  hstrct.b = 14695981739346656037ull;
+  hstrct.c = 14695981039346756037ull;
+  hstrct.d = 14795981039346656037ull;
+  for(i = 0; i < l / 8; i++)
   {
-    hstrct.a += d[i + 0] + hstrct.d;
-    hstrct.b += d[i + 1] + hstrct.a;
-    hstrct.c += d[i + 2] + hstrct.b;
-    hstrct.d += d[i + 3] + hstrct.c;
+    hstrct.a = (hstrct.a ^ d[i]) * fnv_prime;
+    hstrct.b = hstrct.a;
+    hstrct.c = hstrct.a;
+    hstrct.d = hstrct.a;
   }
-
-  // Last round
-  struct hash tmp = {0};
-  memcpy(&tmp, &(d[l / 32 + 1]), l % 32);
-  hstrct.a += tmp.a ^ hstrct.d;
-  hstrct.b += tmp.b ^ hstrct.a;
-  hstrct.c += tmp.c ^ hstrct.b;
-  hstrct.d += tmp.d ^ hstrct.c;
 
   return hstrct;
 }

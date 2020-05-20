@@ -36,7 +36,7 @@ int send_rc(struct internal_state * self, enum msgtype cnttype, void * payload, 
 
 int relay_rc(struct internal_state * self, struct packet * pckt)
 {
-  printf("Received randomcast with %d hops\n", pckt->hdr_rc.hops);
+  //printf("Received randomcast with %d hops\n", pckt->hdr_rc.hops);
   // Decrease hop count
   pckt->hdr_rc.hops--;
   // Pick random target
@@ -75,7 +75,7 @@ int send_bc(struct internal_state * self, enum msgtype cnttype, void * payload, 
 
 int relay_bc(struct internal_state * self, struct packet * pckt)
 {
-  printf("Relaying broadcast with %d breadth\n", pckt->hdr_bc.breadth);
+  //printf("Relaying broadcast with %d breadth\n", pckt->hdr_bc.breadth);
   // Decrease hop count
   pckt->hdr_bc.breadth--;
   // Send

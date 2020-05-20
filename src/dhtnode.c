@@ -55,6 +55,7 @@ void node(struct peer_addr * seed, short port)
   uint8_t buffer[65536];
   struct sockaddr_in cliaddr;
   int addrlen;
+  printf("Node %llu READY\n", self->selfaddr.id);
   while(1)
   {
     recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);

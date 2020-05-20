@@ -22,12 +22,11 @@ struct peer_addr find_mod(struct internal_state * self, uint16_t mod)
   struct msg_find find;
   find.src = self->selfaddr;
   find.mod = mod;
-  printf("Searching %x ...\n", find.mod);
+  //printf("Searching %x ...\n", find.mod);
   send_bc(self, FIND, &find, sizeof(struct msg_find), 3);
   while(1)
   {
     recvfrom(self->sock, _pckt, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
-    printf("Got %llx\n", pckt->src.id % CONST_SHARDS);
     if(pckt->src.id % CONST_SHARDS == mod) return pckt->src;
   }
 }
@@ -101,16 +100,13 @@ int main(int argc, char ** argv)
   struct sockaddr_in cliaddr;
   int addrlen;
   // Get index
-  printf("PRE\n");
   while(1)
   {
-    printf("PACK\n");
     recvfrom(self->sock, _pckt, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
-    if(pckt->payload.cnttype == FILEFRAG) printf("ES\n");
     if(pckt->payload.cnttype == FILEFRAG) break;
   }
   memcpy(&idx, ((struct msg_file *)pckt->payload.content)->data, CONST_FILE_SIZE);
-  printf("File '%s'\n\tFragments: %d\n\tSize: %d bytes\n", idx.name, idx.fragcount, CONST_FILE_SIZE * (idx.fragcount - 1) + idx.lfsize);
+  //printf("File '%s'\n\tFragments: %d\n\tSize: %d bytes\n", idx.name, idx.fragcount, CONST_FILE_SIZE * (idx.fragcount - 1) + idx.lfsize);
 
   // Download file fragments
   char fname[30] = {0};
@@ -120,10 +116,13 @@ int main(int argc, char ** argv)
   for(i = 0; i < (idx.fragcount - 1); i++)
   {
     download_fragment(self, &idx.frags[i], f, CONST_FILE_SIZE);
-    usleep(100000);
+    putchar('#');
+    fflush(stdout);
+    //usleep(100000);
   }
   download_fragment(self, &idx.frags[i], f, idx.lfsize);
+  putchar('#');
   fclose(f);
 
-  printf("File downloaded\n");
+  printf("\nFile downloaded\n");
 }
