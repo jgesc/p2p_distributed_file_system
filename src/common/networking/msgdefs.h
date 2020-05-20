@@ -14,7 +14,7 @@
 
 /// Enum
 
-enum msgtype {NONE, JOIN, PEERS, ADDME, PING, FILEFRAG, FILEGET, FIND};
+enum msgtype {NONE, JOIN, PEERS, ADDME, PING, FILEFRAG, FILEGET, FIND, NEWFILE};
 
 /// Structs
 
@@ -62,6 +62,13 @@ struct msg_find
 {
   struct peer_addr src;
   uint16_t mod;
+};
+
+// New file
+struct msg_newfile
+{
+  struct peer_addr peer;
+  struct hash hash;
 };
 
 #endif

@@ -73,26 +73,19 @@ void procmsg_filefrag(struct internal_state * self, struct packet * msg)
   struct msg_file * file = (void*)(msg->payload.content);
 
   // Check hash
-  //printf("%016lx%016lx%016lx%016lx\t%lx\n", file->hash.a, file->hash.b, file->hash.c, file->hash.d, hashreduce(&file->hash) % 16);
   if(hashreduce((void*)&file->hash) % CONST_SHARDS != self->selfaddr.id % CONST_SHARDS)
-  {
-    //printf("%lx != %llx\n", hashreduce((void*)(&(file->hash))) % CONST_SHARDS, self->selfaddr.id % CONST_SHARDS);
     return; // Ignore
-  }
-  else
-  {
-    //printf("%lx == %llx\n", hashreduce((void*)(&(file->hash))) % CONST_SHARDS, self->selfaddr.id % CONST_SHARDS);
-  }
 
   // If doesn't exist store
   if(!fm_exists(self, file))
   {
-    //printf("STORE\n");
     fm_store(self, file);
-  }
-  else
-  {
-    printf("ALREADY STORED\n");
+
+    // Broadcast newfile
+    struct msg_newfile newfile;
+    newfile.peer = self->selfaddr;
+    newfile.hash = file->hash;
+    send_bc_uid(self, NEWFILE, &newfile, sizeof(struct msg_newfile), 3, file->hash.a);
   }
 }
 
@@ -126,6 +119,26 @@ void procmsg_find(struct internal_state * self, struct packet * msg)
   send_sc(self, NONE, NULL, 0, &find->src);
 }
 
+void procmsg_newfile(struct internal_state * self, struct packet * msg)
+{
+  //printf("FIND received\n");
+
+  // Point to payload
+  struct msg_newfile * newfile = (void*)(msg->payload.content);
+  struct broadcast_hdr * hdr = &(msg->hdr_bc);
+  // Check mod
+  if(hashreduce((void*)&newfile->hash) % CONST_SHARDS != self->selfaddr.id % CONST_SHARDS)
+  {
+    if(hdr->breadth > 0)
+      relay_bc(self, msg);
+    return;
+  }
+  // Answer
+  struct msg_get get;
+  get.hash = newfile->hash;
+  send_sc(self, FILEGET, &get, sizeof(struct msg_get), &newfile->peer);
+}
+
 /// Entry points
 
 void procmsg(struct internal_state * self, void * buffer)
@@ -156,6 +169,9 @@ void procmsg(struct internal_state * self, void * buffer)
       break;
     case FIND:
       procmsg_find(self, msg);
+      break;
+    case NEWFILE:
+      procmsg_newfile(self, msg);
       break;
     default:
       //printf("Unknown\n");
@@ -203,10 +219,9 @@ int handlenetl(struct internal_state * self, void * buffer)
       // Else add to history
       else cstl_add(self->bchist, hdr->uid);
       // Check if needs to relay
-      if(hdr->breadth > 0)
+      if(hdr->breadth > 0 && ((struct packet *)buffer)->payload.cnttype != NEWFILE)
         relay_bc(self, buffer);
       // Process message
-      //printf("Received broadcast\n");
       return 1;
     }
     default:
