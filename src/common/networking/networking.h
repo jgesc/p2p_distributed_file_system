@@ -28,6 +28,9 @@ int send_rc(struct internal_state * self, enum msgtype cnttype, void * payload, 
 // Send broadcast
 int send_bc(struct internal_state * self, enum msgtype cnttype, void * payload, uint16_t cntlen, int16_t breadth);
 
+// Send broadcast with uid
+int send_bc_uid(struct internal_state * self, enum msgtype cnttype, void * payload, uint16_t cntlen, int16_t breadth, uint64_t uid);
+
 // Realay randomcast
 int relay_rc(struct internal_state * self, struct packet * pckt);
 

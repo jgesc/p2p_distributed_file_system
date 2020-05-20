@@ -5,8 +5,60 @@
 
 #include "common/internal_state.h"
 #include "common/file_manager/index_file.h"
+#include "common/networking/networking.h"
 #include "common/networking/msgdefs.h"
 #include "common/networking/packets.h"
+#include "common/data_structures/static_list.h"
+
+#define CONST_SHARDS 16
+
+void populate_peer_list(struct internal_state * self, struct stlist ** peerlist)
+{
+  // Packet buffer
+  uint8_t _pckt[65336];
+  struct packet * pckt = (struct packet *)_pckt;
+  // Address buffer
+  struct sockaddr_in cliaddr = {0};
+  int addrlen = 0;
+  // Find
+  struct msg_ping ping;
+  ping.echo = rand();
+  //printf("Searching %x ...\n", find.mod);
+  send_bc(self, PING, &ping, sizeof(struct msg_ping), 3);
+  int i;
+  for(i = 0; i < 6; i++)
+  {
+    recvfrom(self->sock, _pckt, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
+    if(!stl_contains(peerlist[pckt->src.id % CONST_SHARDS], &pckt->src, (void*)cmppaddr));
+      stl_add(peerlist[pckt->src.id % CONST_SHARDS], &pckt->src);
+  }
+}
+
+struct peer_addr find_mod(struct internal_state * self, uint16_t mod, struct stlist ** peerlist)
+{
+  // Check peer cache
+  if(peerlist[mod]->len > 0)
+    return *(struct peer_addr*)stl_get(peerlist[mod], rand() % peerlist[mod]->len);
+  // Packet buffer
+  uint8_t _pckt[65336];
+  struct packet * pckt = (struct packet *)_pckt;
+  // Address buffer
+  struct sockaddr_in cliaddr = {0};
+  int addrlen = 0;
+  // Find
+  struct msg_find find;
+  find.src = self->selfaddr;
+  find.mod = mod;
+  //printf("Searching %x ...\n", find.mod);
+  send_bc(self, FIND, &find, sizeof(struct msg_find), 3);
+  while(1)
+  {
+    recvfrom(self->sock, _pckt, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
+    if(!stl_contains(peerlist[pckt->src.id % CONST_SHARDS], &pckt->src, (void*)cmppaddr));
+      stl_add(peerlist[pckt->src.id % CONST_SHARDS], &pckt->src);
+    if(pckt->src.id % CONST_SHARDS == mod) return pckt->src;
+  }
+}
 
 int main(int argc, char ** argv)
 {
@@ -49,6 +101,7 @@ int main(int argc, char ** argv)
   srand(time(NULL));
   // Initialize self
   struct internal_state * self = init_self(port);
+  stl_add(self->neighbors, &seed);
   // Initialize index structure
   struct idxfile idx = {0};
   strncpy(idx.name, fname, 29);
@@ -57,33 +110,25 @@ int main(int argc, char ** argv)
   struct msg_file msg = {0};
   int i;
   size_t rbytes, lrbytes;
-  // Packet assembly buffer
-  uint8_t _pckt[65336];
-  struct packet * pckt = (struct packet *)_pckt;
 
-  // Fill packet fields
-  pckt->hdrtype = BC;
-  pckt->src = self->selfaddr;
-  pckt->hdr_bc.breadth = 25;
-  pckt->payload.cnttype = FILEFRAG;
-  pckt->payload.len = sizeof(struct msg_file);
+  struct peer_addr dest;
+  struct stlist * peerlist[16];
+  for(i = 0; i < 16; i++)
+    peerlist[i] = stl_new(10, sizeof(struct peer_addr));
+  populate_peer_list(self, peerlist);
 
   // Read all file
   while(rbytes = fread(msg.data, 1, CONST_FILE_SIZE, f))
   {
     // Record last read bytes
     lrbytes = rbytes;
-    // Generate uid
-    pckt->hdr_bc.uid = getpid() * 10000 + (((uint64_t)rand() << 48) | ((uint64_t)rand() << 32) | (rand() << 16) | rand());
     // Calculate hash and store
     msg.hash = hash(msg.data, CONST_FILE_SIZE);
     idx.frags[fragid] = msg.hash;
     fragid++;
-    // Copy payload
-    memcpy(pckt->payload.content, &msg, sizeof(struct msg_file));
-    //printf("SENT %016lx%016lx%016lx%016lx\t%lx\n", msg.hash.a, msg.hash.b, msg.hash.c, msg.hash.d, hashreduce(&msg.hash) % 16);
     // Send
-    sendto(self->sock, pckt, pkt_len(pckt), 0, (const struct sockaddr *) (&(seed.addr)), sizeof(struct sockaddr_in));
+    dest = find_mod(self, hashreduce((void*)&msg.hash) % CONST_SHARDS, peerlist);
+    send_sc(self, FILEFRAG, &msg, sizeof(struct msg_file), &dest);
 
     // Clear buffer
     memset(&msg, 0, sizeof(struct msg_file));
@@ -98,16 +143,16 @@ int main(int argc, char ** argv)
   // Pack index in message
   memcpy(msg.data, &idx, sizeof(struct idxfile));
   msg.hash = hash(msg.data, CONST_FILE_SIZE);
-  // Copy payload
-  memcpy(pckt->payload.content, &msg, sizeof(struct msg_file));
-  // Generate uid
-  pckt->hdr_bc.uid = getpid() * 10000 + (((uint64_t)rand() << 48) | ((uint64_t)rand() << 32) | (rand() << 16) | rand());
   // Send
-  sendto(self->sock, pckt, pkt_len(pckt), 0, (const struct sockaddr *) (&(seed.addr)), sizeof(struct sockaddr_in));
+  dest = find_mod(self, hashreduce((void*)&msg.hash) % CONST_SHARDS, peerlist);
+  send_sc(self, FILEFRAG, &msg, sizeof(struct msg_file), &dest);
   putchar('#');
   fflush(stdout);
   // Print result
   printf("\n%016lx%016lx%016lx%016lx\n", msg.hash.a, msg.hash.b, msg.hash.c, msg.hash.d);
   // Close file
   fclose(f);
+  // Free peer list
+  for(i = 0; i < 16; i++)
+    free(peerlist[i]);
 }
