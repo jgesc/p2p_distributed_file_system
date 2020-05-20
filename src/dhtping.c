@@ -38,16 +38,16 @@ int main(int argc, char ** argv)
   {
     case 1:
     {
-      //printf("PING!\n");
+      printf("PING!\n");
       send_sc(self, PING, &payload, sizeof(struct msg_ping), &seed);
       recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
       struct msg_ping * pong = (void*)((struct packet *)buffer)->payload.content;
-      if(pong->echo == payload.echo) //printf("PONG!\n");
+      if(pong->echo == payload.echo) printf("PONG!\n");
       break;
     }
     case 2:
     {
-      //printf("PING!\n");
+      printf("PING!\n");
       // Allocate memory in stack
       uint8_t _pckt[sizeof(struct packet) + sizeof(struct msg_ping)];
       struct packet * pckt = (struct packet *)_pckt;
@@ -64,12 +64,12 @@ int main(int argc, char ** argv)
       sendto(self->sock, pckt, sizeof(_pckt), 0, (const struct sockaddr *) (&(seed.addr)), sizeof(struct sockaddr_in));
       recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
       struct msg_ping * pong = (void*)((struct packet *)buffer)->payload.content;
-      if(pong->echo == payload.echo) //printf("PONG!\n");
+      if(pong->echo == payload.echo) printf("PONG!\n");
       break;
     }
     case 3:
     {
-      //printf("PING!\n");
+      printf("PING!\n");
       // Allocate memory in stack
       uint8_t _pckt[65336];
       struct packet * pckt = (struct packet *)_pckt;
@@ -90,15 +90,15 @@ int main(int argc, char ** argv)
       {
         recvfrom(self->sock, buffer, 65536, MSG_WAITALL, (struct sockaddr *)&cliaddr, &addrlen);
         struct msg_ping * pong = (void*)((struct packet *)buffer)->payload.content;
-        if(pong->echo == payload.echo) //printf("PONG %u!\n", pongs++);
-        else //printf("WRONG PONG %lx EXPECTED %lx\n", pong->echo, payload.echo);
+        if(pong->echo == payload.echo) printf("PONG %u!\n", pongs++);
+        else printf("WRONG PONG %lx EXPECTED %lx\n", pong->echo, payload.echo);
       }
       break;
     }
 
     default:
     {
-      //printf("Unknown castmode");
+      printf("Unknown castmode");
       break;
     }
   }

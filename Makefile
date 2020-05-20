@@ -1,3 +1,5 @@
+all: build-node build-send build-recv build-ping build-hash
+
 build-node:
 	gcc -O3 src/dhtnode.c `find src/common -name "*.c"` -o bin/dhtnode
 
